@@ -11,7 +11,6 @@ import (
 	"github.com/GalichAnton/go_final_project/internal/handlers/done"
 	"github.com/GalichAnton/go_final_project/internal/handlers/next_date"
 	"github.com/GalichAnton/go_final_project/internal/handlers/sign"
-	"github.com/GalichAnton/go_final_project/internal/handlers/task"
 	"github.com/GalichAnton/go_final_project/internal/handlers/tasks"
 	"github.com/GalichAnton/go_final_project/internal/logger"
 	"github.com/GalichAnton/go_final_project/internal/middleware/auth"
@@ -113,7 +112,7 @@ func (a *App) initHTTPServer() error {
 	pass := a.serviceProvider.pass
 
 	mux.HandleFunc(nextDatePath, next_date.Handle)
-	mux.HandleFunc(taskPath, auth.Auth(task.New(a.serviceProvider.TaskService()).Handle, pass))
+	mux.HandleFunc(taskPath, auth.Auth(a.serviceProvider.TaskHandler(), pass))
 	mux.HandleFunc(tasksPath, auth.Auth(tasks.New(a.serviceProvider.TaskService()).Handle, pass))
 	mux.HandleFunc(taskDonePath, auth.Auth(done.New(a.serviceProvider.TaskService()).Handle, pass))
 	mux.HandleFunc(singPath, sign.New(a.serviceProvider.TaskService()).Handle)

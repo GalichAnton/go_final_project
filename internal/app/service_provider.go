@@ -2,20 +2,25 @@ package app
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/GalichAnton/go_final_project/internal/clients/db"
 	"github.com/GalichAnton/go_final_project/internal/config"
 	"github.com/GalichAnton/go_final_project/internal/config/env"
+	taskHandler "github.com/GalichAnton/go_final_project/internal/handlers/task"
 	"github.com/GalichAnton/go_final_project/internal/repository"
 	"github.com/GalichAnton/go_final_project/internal/repository/task"
 	"github.com/GalichAnton/go_final_project/internal/services"
 	taskService "github.com/GalichAnton/go_final_project/internal/services/task"
 )
 
+type Handler = func(w http.ResponseWriter, r *http.Request)
+
 type serviceProvider struct {
-	dbConfig   config.DBConfig
-	httpConfig config.HTTPConfig
-	logConfig  config.LogConfig
+	dbConfig    config.DBConfig
+	httpConfig  config.HTTPConfig
+	logConfig   config.LogConfig
+	taskHandler Handler
 
 	taskRepository repository.TaskRepository
 
@@ -114,4 +119,12 @@ func (s *serviceProvider) TaskService() services.TaskService {
 	}
 
 	return s.taskService
+}
+
+func (s *serviceProvider) TaskHandler() Handler {
+	if s.taskHandler == nil {
+		s.taskHandler = taskHandler.New(s.TaskService()).Handle
+	}
+
+	return s.taskHandler
 }
